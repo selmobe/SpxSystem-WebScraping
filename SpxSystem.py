@@ -3,12 +3,15 @@ import time
 import shutil
 import glob
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
 class SpxDonwloader():
     __headless = True
     __tempFolder = os.path.join(os.getcwd(), 'TEMP')
+    __userPerfil = os.path.join(os.getcwd(), 'perfil')
 
     def __init__(self, headless=True):
         """ Para primeiro acesso, definir headless=True para conseguir realizar login e salvar as credenciais de execução
@@ -44,26 +47,38 @@ class SpxDonwloader():
     def __set_config(self, headless=True):
         """ Helper function that creates a new Selenium browser """
         self.options = webdriver.ChromeOptions()
-        if headless:
-            self.options.add_argument('headless')
     
         self.tempFolder = self.__tempFolder
         if not os.path.exists(self.tempFolder):
             os.makedirs(self.tempFolder)
 
-        self.userPerfil = os.path.join(os.getcwd(), 'perfil')
-        if not os.path.exists(self.userPerfil):
-            os.makedirs(self.userPerfil)
+        #self.userPerfil = self.__userPerfil
+        #if not os.path.exists(self.userPerfil):
+        #    os.makedirs(self.userPerfil)
         
         self.prefs = {}
         self.prefs["profile.default_content_settings.popups"]=0
         self.prefs["download.default_directory"] = self.tempFolder
         self.options.add_argument("--disable-extensions")
-        self.options.add_experimental_option("prefs", self.prefs)
+        self.options.add_experimental_option("prefs", self.prefs)        
 
-        self.options.add_argument(f"user-data-dir={self.userPerfil}")
+        if not os.path.exists(self.__userPerfil):
+            os.makedirs(self.__userPerfil)
+            self.options.add_argument(f"user-data-dir={self.__userPerfil}")
+            self.browser = webdriver.Chrome(ChromeDriverManager().install(), options=self.options)
+            self.__headless = False
+            self.browser.get("https://spx.shopee.com.br/#/dashboard/toProductivity?page_type=Outbound")
+            WebDriverWait(self.browser, 50).until(EC.url_to_be("https://spx.shopee.com.br/#/index"))
+            time.sleep(5)
+            self.browser.find_element(By.XPATH, "/html/body/div[2]/div[2]/div/div[1]/p").click()
+            return self.browser
+            
+        if headless:             
+            self.options.add_argument('headless')
+            self.options.add_argument(f"user-data-dir={self.__userPerfil}")
+        
         self.browser = webdriver.Chrome(ChromeDriverManager().install(), options=self.options)
-        #input()
+            
         return self.browser
 
     def export_outbound(self, path_download=None, filename=None):
@@ -91,3 +106,9 @@ class SpxDonwloader():
 
         self.__move_recent_file(self.__tempFolder, path_download, filename)
         shutil.rmtree(self.__tempFolder)
+
+if __name__ == '__main__':
+    csv_folder = os.path.join(os.getcwd(), 'CSV_FILES')
+
+    spx = SpxDonwloader()
+    spx.export_outbound(path_download=csv_folder)
