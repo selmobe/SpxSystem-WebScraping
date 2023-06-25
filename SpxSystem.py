@@ -108,7 +108,14 @@ class SpxDonwloader():
         shutil.rmtree(self.__tempFolder)
 
 if __name__ == '__main__':
-    csv_folder = os.path.join(os.getcwd(), 'CSV_FILES')
 
+    csv_folder = os.path.join(os.getcwd(), 'CSV_FILES')
     spx = SpxDonwloader()
-    spx.export_outbound(path_download=csv_folder)
+    new_name = "123456"
+
+    # Chama a função que realiza o download do arquivo
+    # path_download é a pasta de destino do arquivo baixado
+    # filename é o nome que o arquivo deverá ser nomeado no final
+    # Ambos parâmetros são opcionais, caso não informados, o arquivo será saldo no diretorio de execução
+    # com o nome original
+    spx.export_outbound(path_download=csv_folder, filename=new_name)
