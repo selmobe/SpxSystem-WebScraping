@@ -2,6 +2,7 @@ import os
 import time
 import shutil
 import glob
+import logging
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -9,6 +10,7 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
 class SpxDonwloader():
+    logging.basicConfig(level=logging.INFO, filename="exec.log", format="%(asctime)s - %(levelname)s - %(message)s", encoding="utf-8")
     __headless = True
     __tempFolder = os.path.join(os.getcwd(), 'TEMP')
     __userPerfil = os.path.join(os.getcwd(), 'perfil')
@@ -17,6 +19,8 @@ class SpxDonwloader():
         """ Para primeiro acesso, definir headless=True para conseguir realizar login e salvar as credenciais de execução
             :param headless: Boolean (Opcional) - Define se o navegaor será exibido durante a execução do código
         """
+        with open((os.path.join(os.getcwd(), 'exec.log')), "r+") as file_log:
+            file_log.truncate()
         self.__headless = headless
     
     def __move_recent_file(self, folder, filepath, new_name):
@@ -41,6 +45,7 @@ class SpxDonwloader():
         try:
             shutil.move(latest_file, new_path)
             print("Arquivo movido com sucesso.")
+            return new_path
         except Exception as e:
             print("Ocorreu um erro ao mover o arquivo:", str(e))
             
@@ -51,10 +56,6 @@ class SpxDonwloader():
         self.tempFolder = self.__tempFolder
         if not os.path.exists(self.tempFolder):
             os.makedirs(self.tempFolder)
-
-        #self.userPerfil = self.__userPerfil
-        #if not os.path.exists(self.userPerfil):
-        #    os.makedirs(self.userPerfil)
         
         self.prefs = {}
         self.prefs["profile.default_content_settings.popups"]=0
@@ -63,6 +64,7 @@ class SpxDonwloader():
         self.options.add_experimental_option("prefs", self.prefs)        
 
         if not os.path.exists(self.__userPerfil):
+            logging.warning(f"Diretorio com cache de credenciais não existente, criando.")
             os.makedirs(self.__userPerfil)
             self.options.add_argument(f"user-data-dir={self.__userPerfil}")
             self.browser = webdriver.Chrome(ChromeDriverManager().install(), options=self.options)
@@ -86,8 +88,9 @@ class SpxDonwloader():
             :param path_download: String (Opcional) - local de destino do arquivo baixado, se não informado, então realiza o download para o diretorio atual de execução
             :param filename: String (Opcional)- o nome que será utilizado ao salvar o arquivo, se não informado, então mantem o nome atual
         """
-
+        logging.info("Iniciando acesso ao sistema e extraindo dados")
         if not os.path.exists(path_download):
+            logging.warning(f"Diretorio de destino não existe: {path_download}, sistema criando diretório")
             os.makedirs(path_download)
 
         driver = self.__set_config(self.__headless)
@@ -104,8 +107,9 @@ class SpxDonwloader():
         if path_download is None:
             path_download = os.getcwd()
 
-        self.__move_recent_file(self.__tempFolder, path_download, filename)
+        result = self.__move_recent_file(self.__tempFolder, path_download, filename)
         shutil.rmtree(self.__tempFolder)
+        logging.info(f"Relatorio exportado com successo para a pasta {result}")
 
 if __name__ == '__main__':
 
