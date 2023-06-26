@@ -61,7 +61,7 @@ class SpxDonwloader():
         self.prefs["profile.default_content_settings.popups"]=0
         self.prefs["download.default_directory"] = self.tempFolder
         self.options.add_argument("--disable-extensions")
-        self.options.add_experimental_option("prefs", self.prefs)        
+        self.options.add_experimental_option("prefs", self.prefs)       
 
         if not os.path.exists(self.__userPerfil):
             logging.warning(f"Diretorio com cache de credenciais não existente, criando.")
@@ -102,6 +102,28 @@ class SpxDonwloader():
         time.sleep(15)
         driver.find_element(By.XPATH,'/html/body/span/div/div[1]/div/span/div/div[2]/div[2]/div[1]/div/div[1]/div/div[1]/div[2]/button').click()
         time.sleep(5)
+        driver.quit()
+
+        if path_download is None:
+            path_download = os.getcwd()
+
+        result = self.__move_recent_file(self.__tempFolder, path_download, filename)
+        shutil.rmtree(self.__tempFolder)
+        logging.info(f"Relatorio exportado com successo para a pasta {result}")
+    
+    def download_produty(self, path_download=None, filename=None):
+        """ Função que exporta os dados de produtividade a partir do Sistema SPX
+            :param path_download: String (Opcional) - local de destino do arquivo baixado, se não informado, então realiza o download para o diretorio atual de execução
+            :param filename: String (Opcional)- o nome que será utilizado ao salvar o arquivo, se não informado, então mantem o nome atual
+        """
+        logging.info("Iniciando acesso ao sistema e extraindo dados")
+        if not os.path.exists(path_download):
+            logging.warning(f"Diretorio de destino não existe: {path_download}, sistema criando diretório")
+            os.makedirs(path_download)
+
+        driver = self.__set_config(self.__headless)
+        driver.get("https://docs.google.com/spreadsheets/d/1age7c_P-4dKYKq7hNBLp9XMmP5FmjBLNM_IICiiblgE/export?exportFormat=pdf&format=pdf&size=16.215x6.715&scale=2&top_margin=0&bottom_margin=0&left_margin=0&right_margin=0&sheetnames=false&printtitle=false&pagenum=UNDEFINEDhorizontal_alignment=LEFT&gridlines=false&fmcmd=12&fzr=FALSE&gid=280776734&r1=4&r2=34&c1=1&c2=19")
+        time.sleep(3)
         driver.quit()
 
         if path_download is None:
