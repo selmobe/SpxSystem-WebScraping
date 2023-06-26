@@ -16,11 +16,16 @@ spx = SpxDonwloader(headless=True)
 # filename é o nome que o arquivo deverá ser nomeado no final
 # Ambos parâmetros são opcionais, caso não informados, o arquivo será saldo no diretorio de execução
 # com o nome original
-spx.export_outbound() # Sem parametros
-send_log_seatalk()
+#spx.export_outbound() # Sem parametros
+#send_log_seatalk()
 
-spx.export_outbound(path_download=csv_folder) # apenas com o diretorio de destino
-send_log_seatalk()
+#spx.export_outbound(path_download=csv_folder) # apenas com o diretorio de destino
+#send_log_seatalk()
 
-spx.export_outbound(path_download=csv_folder, filename="OUTBOUND_RESOURCE_DATA") # com local de destino e nome de salvamento
-send_log_seatalk()
+#spx.export_outbound(path_download="D:\\Shopee\\Seatalk Bot\\Seatalk Bot", filename="cerberus.csv") # apenas com o diretorio de destino
+#send_log_seatalk()
+
+#spx.export_outbound(path_download=csv_folder, filename="OUTBOUND_RESOURCE_DATA") # com local de destino e nome de salvamento
+#send_log_seatalk()
+
+spx.download_produty(path_download="D:\\Shopee\\Seatalk Bot\\Seatalk Bot", filename="meu_pdf")
